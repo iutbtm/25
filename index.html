@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTM 25 | IUT</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#090014', /* Deep Dark Purple */
+                        accentPurple: '#8b5cf6',
+                        accentPink: '#d946ef',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary-glow: rgba(139, 92, 246, 0.4);
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+            --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        body {
+            background-color: #090014; /* Dark Purple */
+            color: #ffffff;
+            cursor: none; /* Hide default cursor */
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            user-select: none;
+        }
+
+        @media (pointer: coarse) {
+            body { cursor: auto; }
+            .cursor-dot, .cursor-outline { display: none !important; }
+        }
+
+        /* --- Custom Cursor --- */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+            transition: width 0.3s, height 0.3s, background-color 0.3s, box-shadow 0.3s;
+        }
+        .cursor-dot {
+            width: 7px;
+            height: 7px;
+            background-color: #ffffff;
+            box-shadow: 0 0 14px rgba(255,255,255,0.95), 0 0 28px rgba(217, 70, 239, 0.85);
+        }
+        .cursor-outline {
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid rgba(255, 255, 255, 0.32);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+            transition: transform 0.08s ease-out, width 0.35s var(--ease-spring), height 0.35s var(--ease-spring), border-color 0.3s, background-color 0.3s;
+        }
+        .cursor-hover .cursor-outline {
+            width: 54px;
+            height: 54px;
+            background-color: rgba(217, 70, 239, 0.06);
+            border-color: rgba(232, 121, 249, 0.9);
+            box-shadow: 0 0 30px rgba(217, 70, 239, 0.35), inset 0 0 15px rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(2px);
+        }
+        .cursor-click .cursor-outline {
+            transform: translate(-50%, -50%) scale(0.75);
+            background-color: rgba(139, 92, 246, 0.3);
+            border-color: #ffffff;
+            box-shadow: 0 0 35px rgba(217, 70, 239, 0.75);
+        }
+
+        /* --- Click Ripple Wave --- */
+        .click-ripple {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9997;
+            transform: translate(-50%, -50%) scale(0.2);
+            border: 1.5px solid rgba(232, 121, 249, 0.8);
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.22) 0%, transparent 70%);
+            animation: rippleExpand 0.6s var(--ease-out-expo) forwards;
+        }
+        @keyframes rippleExpand {
+            0% {
+                width: 14px;
+                height: 14px;
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.4);
+            }
+            100% {
+                width: 96px;
+                height: 96px;
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+
+        /* --- Preloader --- */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #130229 0%, #090014 75%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+        }
+        .loader-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #e879f9 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            color: transparent;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: textReveal 0.8s var(--ease-out-expo) forwards;
+            filter: drop-shadow(0 0 35px rgba(217, 70, 239, 0.4));
+        }
+        @keyframes textReveal {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Scroll Reveal Animations --- */
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s var(--ease-out-expo);
+        }
+        .reveal-up.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Enhanced Apple Kinetic Role Sequence Animation --- */
+        .role-sequence-container {
+            min-height: 54px;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.15rem 0.6rem;
+            perspective: 900px;
+        }
+        #role-text {
+            display: inline-flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            will-change: transform, opacity, filter;
+        }
+        .role-char {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffffff 0%, #f5d0fe 35%, #e879f9 70%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 22px rgba(217, 70, 239, 0.4));
+            opacity: 0;
+            transform: translateY(26px) rotateX(-65deg) scale(0.85);
+            animation: charSpringIn 0.62s var(--ease-spring) forwards;
+        }
+        .role-char.space-char {
+            width: 0.32em;
+        }
+        @keyframes charSpringIn {
+            0% {
+                opacity: 0;
+                filter: blur(8px) drop-shadow(0 0 10px rgba(217, 70, 239, 0));
+                transform: translateY(26px) rotateX(-65deg) scale(0.85);
+            }
+            65% {
+                opacity: 1;
+                filter: blur(0px) drop-shadow(0 0 28px rgba(217, 70, 239, 0.65));
+            }
+            100% {
+                opacity: 1;
+                filter: blur(0px) drop-shadow(0 0 20px rgba(217, 70, 239, 0.38));
+                transform: translateY(0) rotateX(0deg) scale(1);
+            }
+        }
+        .role-char-exit {
+            animation: charGlideOut 0.36s var(--ease-out-expo) forwards !important;
+        }
+        @keyframes charGlideOut {
+            0% {
+                opacity: 1;
+                filter: blur(0px);
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                filter: blur(8px);
+                transform: translateY(-22px) scale(0.92);
+            }
+        }
+        /* Glowing Caret Bar beside the animated role text */
+        .role-caret {
+            display: inline-block;
+            width: 3px;
+            height: 1.05em;
+            margin-left: 6px;
+            border-radius: 999px;
+            background: linear-gradient(to bottom, #f0abfc, #8b5cf6);
+            box-shadow: 0 0 14px rgba(217, 70, 239, 0.9);
+            animation: caretPulse 1.1s infinite ease-in-out;
+            vertical-align: middle;
+        }
+        @keyframes caretPulse {
+            0%, 100% { opacity: 1; transform: scaleY(1); }
+            50% { opacity: 0.25; transform: scaleY(0.85); }
+        }
+
+        /* --- Parallax Ambient Background --- */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(130px);
+            z-index: -2;
+            opacity: 0.32;
+            transition: transform 0.8s ease-out;
+            will-change: transform;
+            pointer-events: none;
+        }
+        .orb-1 { width: 52vw; height: 52vw; background: radial-gradient(circle, #8b5cf6, #4c1d95); top: -12%; left: -10%; }
+        .orb-2 { width: 44vw; height: 44vw; background: radial-gradient(circle, #d946ef, #701a75); bottom: -12%; right: -6%; }
+        .orb-3 { width: 32vw; height: 32vw; background: radial-gradient(circle, #6366f1, #3b0764); top: 35%; left: 34%; opacity: 0.16; }
+
+        /* --- Subtle Apple Spatial Grid Overlay --- */
+        .apple-grid-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+            background-size: 64px 64px;
+            mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 30%, transparent 100%);
+            -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 30%, transparent 100%);
+        }
+
+        /* --- Glass Cards & Hover FX (Apple iOS / VisionOS Style) --- */
+        .glass-panel {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.012) 100%);
+            backdrop-filter: blur(26px) saturate(180%);
+            -webkit-backdrop-filter: blur(26px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+            transition: transform 0.5s var(--ease-spring), border-color 0.4s ease, box-shadow 0.5s var(--ease-out-expo), background 0.4s ease;
+            overflow: hidden;
+        }
+        .glass-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            background: radial-gradient(
+                480px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(217, 70, 239, 0.13),
+                transparent 45%
+            );
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .glass-panel:hover::after {
+            opacity: 1;
+        }
+        .glass-panel:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.065) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-color: rgba(217, 70, 239, 0.35);
+            box-shadow: 0 22px 44px rgba(0,0,0,0.55), 0 0 40px rgba(139, 92, 246, 0.18), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-6px) scale(1.01);
+        }
+
+        /* --- Typography & Magnetic Elements --- */
+        .magnetic {
+            display: inline-flex;
+            transition: transform 0.3s var(--ease-out-expo);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, #f3e8ff 45%, #c084fc 85%, #e879f9 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientFlow 6s ease infinite;
+        }
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .gradient-text-alt {
+            background: linear-gradient(135deg, #fdf4ff 0%, #e879f9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Group Toggles */
+        .group-btn {
+            position: relative;
+            z-index: 1;
+            transition: color 0.3s ease;
+        }
+        .group-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #a855f7, #d946ef);
+            border-radius: 999px;
+            z-index: -1;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.4s var(--ease-spring);
+            box-shadow: 0 6px 20px rgba(217, 70, 239, 0.35);
+        }
+        .group-btn.active::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .group-btn.active { color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        
+        /* Staggered Routine Entering */
+        @keyframes staggerIn {
+            0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .routine-card {
+            animation: staggerIn 0.7s var(--ease-spring) forwards;
+            opacity: 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #090014; }
+        ::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.35); border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(217, 70, 239, 0.6); }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col">
+
+    <!-- Preloader -->
+    <div id="preloader" onclick="skipPreloader()">
+        <div class="loader-text" id="loader-counter">0%</div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+
+    <!-- Interactive Particle & Cursor Trail Canvas -->
+    <canvas id="particle-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-75"></canvas>
+
+    <!-- Ambient Parallax Background -->
+    <div class="ambient-orb orb-1" id="orb-1"></div>
+    <div class="ambient-orb orb-2" id="orb-2"></div>
+    <div class="ambient-orb orb-3" id="orb-3"></div>
+    <div class="apple-grid-bg"></div>
+
+    <!-- Header Navigation -->
+    <header class="fixed top-0 w-full z-50 px-4 sm:px-6 py-4 transition-all duration-500" id="navbar">
+        <div class="max-w-7xl mx-auto flex items-center justify-between glass-panel !rounded-full px-6 py-3 bg-[#090014]/65 border-white/10 shadow-lg">
+            
+            <div class="flex items-center space-x-3 magnetic hover-trigger cursor-pointer" onclick="UIManager.switchTab('home')">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-fuchsia-500 flex items-center justify-center font-heading font-bold text-white text-xs tracking-wider shadow-[0_0_15px_rgba(217,70,239,0.45)]">
+                    BTM
+                </div>
+                <span class="font-heading font-bold text-white tracking-tight">Batch 25</span>
+            </div>
+
+            <nav class="hidden md:flex items-center space-x-2">
+                <button onclick="UIManager.switchTab('home')" id="nav-home" class="magnetic hover-trigger nav-btn px-5 py-2 rounded-full text-sm font-medium text-white bg-white/10 transition-all shadow-[0_0_10px_rgba(255,255,255,0.05)]">Home</button>
+                <button onclick="UIManager.switchTab('routine')" id="nav-routine" class="magnetic hover-trigger nav-btn px-5 py-2 rounded-full text-sm font-medium text-purple-200/60 hover:text-white transition-all">Routine</button>
+                <button onclick="UIManager.switchTab('resources')" id="nav-resources" class="magnetic hover-trigger nav-btn px-5 py-2 rounded-full text-sm font-medium text-purple-200/60 hover:text-white transition-all">Resources</button>
+            </nav>
+
+            <button id="mobile-menu-btn" onclick="UIManager.toggleMobileMenu()" class="md:hidden magnetic hover-trigger text-white p-1.5 rounded-full">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden max-w-7xl mx-auto mt-2 glass-panel p-4 bg-[#090014]/90 border-white/15">
+            <div class="flex flex-col space-y-2">
+                <button onclick="UIManager.switchTab('home'); UIManager.toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold text-white bg-white/10 flex items-center justify-between">
+                    <span>Home</span>
+                    <i data-lucide="sparkles" class="w-4 h-4 text-fuchsia-400"></i>
+                </button>
+                <button onclick="UIManager.switchTab('routine'); UIManager.toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold text-purple-200 hover:bg-white/5 flex items-center justify-between">
+                    <span>Routine</span>
+                    <i data-lucide="calendar" class="w-4 h-4 text-purple-400"></i>
+                </button>
+                <button onclick="UIManager.switchTab('resources'); UIManager.toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold text-purple-200 hover:bg-white/5 flex items-center justify-between">
+                    <span>Resources</span>
+                    <i data-lucide="folder-open" class="w-4 h-4 text-pink-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-8 pt-32 pb-20 flex flex-col justify-center relative z-10">
+        
+        <!-- HOME TAB (Pure, Monumental Layout Modeled on https://itzshaafi.github.io/s/) -->
+        <div id="tab-home" class="tab-content block space-y-12">
+            <div class="h-[72vh] flex flex-col items-center justify-center text-center relative z-10">
+                <div class="reveal-up inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full glass-panel text-xs font-semibold text-purple-200 mb-8 backdrop-blur-md">
+                    <span class="w-2 h-2 rounded-full bg-fuchsia-500 animate-pulse shadow-[0_0_10px_rgba(217,70,239,0.9)]"></span> IUT BTM 25
+                </div>
+                
+                <h1 class="reveal-up text-5xl sm:text-7xl md:text-8xl font-heading font-extrabold text-white mb-3 leading-tight tracking-tighter" style="transition-delay: 0.1s;">
+                    Islamic University<br>
+                    <span class="gradient-text">Of Technology.</span>
+                </h1>
+                
+                <!-- Signature Kinetic Role Sequence -->
+                <div class="reveal-up text-xl sm:text-3xl md:text-4xl font-light text-purple-200/85 mt-5 min-h-[4rem] flex flex-col sm:flex-row items-center justify-center gap-2" style="transition-delay: 0.2s;">
+                    <span id="role-prefix" class="tracking-wide">We are</span>
+                    <div class="role-sequence-container">
+                        <span id="role-text" class="font-bold tracking-wide">The Business Administrative</span>
+                        <span class="role-caret"></span>
+                    </div>
+                </div>
+
+                <div class="reveal-up mt-14 flex gap-4" style="transition-delay: 0.3s;">
+                    <button onclick="UIManager.switchTab('routine')" class="magnetic hover-trigger px-8 py-4 rounded-full bg-white text-black font-semibold text-sm hover:scale-105 transition-transform flex items-center gap-2 shadow-[0_10px_30px_rgba(255,255,255,0.18)]">
+                        View Routine <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROUTINE TAB -->
+        <div id="tab-routine" class="tab-content hidden space-y-10">
+            
+            <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 reveal-up">
+                <div>
+                    <h2 class="text-4xl sm:text-5xl font-heading font-extrabold text-white tracking-tight mb-2">Class Routine</h2>
+                    <p class="text-purple-200/60">1st Semester, Live Synchronized Schedule.</p>
+                </div>
+                
+                <div class="glass-panel p-1.5 rounded-full flex items-center">
+                    <button id="btn-group1" onclick="RoutineManager.setGroup(1)" class="magnetic hover-trigger group-btn active px-8 py-2.5 rounded-full text-sm font-bold w-32 text-purple-200/60 justify-center">
+                        Group 1
+                    </button>
+                    <button id="btn-group2" onclick="RoutineManager.setGroup(2)" class="magnetic hover-trigger group-btn px-8 py-2.5 rounded-full text-sm font-bold w-32 text-purple-200/60 justify-center">
+                        Group 2
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Filter & Search Bar -->
+            <div class="reveal-up glass-panel p-4 sm:p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0" id="day-filter-bar">
+                    <button onclick="RoutineManager.setDayFilter('ALL')" data-day="ALL" class="day-pill hover-trigger px-4 py-2 rounded-full text-xs font-bold bg-white text-black transition-all shrink-0">All Days</button>
+                    <button onclick="RoutineManager.setDayFilter('Monday')" data-day="Monday" class="day-pill hover-trigger px-4 py-2 rounded-full text-xs font-medium bg-white/5 text-purple-200 hover:bg-white/10 transition-all shrink-0">Monday</button>
+                    <button onclick="RoutineManager.setDayFilter('Tuesday')" data-day="Tuesday" class="day-pill hover-trigger px-4 py-2 rounded-full text-xs font-medium bg-white/5 text-purple-200 hover:bg-white/10 transition-all shrink-0">Tuesday</button>
+                    <button onclick="RoutineManager.setDayFilter('Wednesday')" data-day="Wednesday" class="day-pill hover-trigger px-4 py-2 rounded-full text-xs font-medium bg-white/5 text-purple-200 hover:bg-white/10 transition-all shrink-0">Wednesday</button>
+                    <button onclick="RoutineManager.setDayFilter('Thursday')" data-day="Thursday" class="day-pill hover-trigger px-4 py-2 rounded-full text-xs font-medium bg-white/5 text-purple-200 hover:bg-white/10 transition-all shrink-0">Thursday</button>
+                    <button onclick="RoutineManager.setDayFilter('Friday')" data-day="Friday" class="day-pill hover-trigger px-4 py-2 rounded-full text-xs font-medium bg-white/5 text-purple-200 hover:bg-white/10 transition-all shrink-0">Friday</button>
+                </div>
+
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+                    <select id="routine-type-filter" onchange="RoutineManager.setTypeFilter(this.value)" class="bg-white/5 border border-white/15 rounded-full px-4 py-2 text-xs text-purple-100 focus:outline-none focus:border-fuchsia-400">
+                        <option value="ALL" class="bg-[#090014]">All Types</option>
+                        <option value="Lecture" class="bg-[#090014]">Lectures Only</option>
+                        <option value="Tutorial" class="bg-[#090014]">Tutorials Only</option>
+                        <option value="Lab" class="bg-[#090014]">Labs Only</option>
+                        <option value="Makeup" class="bg-[#090014]">Makeup Slots</option>
+                    </select>
+                    <div class="relative flex-grow sm:w-56">
+                        <input id="routine-search" type="text" oninput="RoutineManager.setSearch(this.value)" placeholder="Search course, room, inst..." class="w-full bg-white/5 border border-white/15 rounded-full pl-9 pr-4 py-2 text-xs text-white placeholder-purple-300/40 focus:outline-none focus:border-fuchsia-400" />
+                        <i data-lucide="search" class="w-3.5 h-3.5 text-purple-300/50 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="routine-container" class="space-y-12"></div>
+        </div>
+
+        <!-- RESOURCES TAB -->
+        <div id="tab-resources" class="tab-content hidden space-y-8">
+            <div class="reveal-up mb-8">
+                <h2 class="text-4xl font-heading font-extrabold text-white mb-2">Study Resources</h2>
+                <p class="text-purple-200/60">Curated materials, lecture slides, and archives.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Linked Resource Card -->
+                <a href="https://drive.google.com/drive/folders/1xub_6KT6p6LRMKU6NlcOV5AULTqpQbJA?usp=sharing" target="_blank" rel="noopener noreferrer" class="reveal-up glass-panel p-8 flex flex-col gap-6 hover-trigger text-decoration-none group" data-tilt style="transition-delay: 0.1s;">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+                        <i data-lucide="cloud" class="w-6 h-6 text-purple-300"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-1 group-hover:text-purple-300 transition-colors">Official Drive</h3>
+                        <p class="text-sm text-purple-200/60">All semester PDFs and slides.</p>
+                    </div>
+                </a>
+
+                <div onclick="ResourceExplorer.openSection('outlines')" class="reveal-up glass-panel p-8 flex flex-col gap-6 hover-trigger group cursor-pointer" data-tilt style="transition-delay: 0.2s;">
+                    <div class="w-14 h-14 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-[0_0_20px_rgba(217,70,239,0.2)]">
+                        <i data-lucide="book-open" class="w-6 h-6 text-fuchsia-300"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-1 group-hover:text-fuchsia-300 transition-colors">Course Outlines</h3>
+                        <p class="text-sm text-purple-200/60">Syllabus breakdown.</p>
+                    </div>
+                </div>
+
+                <div onclick="ResourceExplorer.openSection('qbank')" class="reveal-up glass-panel p-8 flex flex-col gap-6 hover-trigger group cursor-pointer" data-tilt style="transition-delay: 0.3s;">
+                    <div class="w-14 h-14 rounded-2xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-[0_0_20px_rgba(236,72,153,0.2)]">
+                        <i data-lucide="database" class="w-6 h-6 text-pink-300"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-1 group-hover:text-pink-300 transition-colors">Question Bank</h3>
+                        <p class="text-sm text-purple-200/60">Past mid &amp; final papers.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Resource Explorer Panel -->
+            <div id="resource-explorer-panel" class="glass-panel p-6 sm:p-8 space-y-6 hidden"></div>
+        </div>
+
+    </main>
+
+    <!-- Course Detail Modal -->
+    <div id="course-modal" class="fixed inset-0 z-[9990] hidden items-center justify-center p-4 bg-black/70 backdrop-blur-xl">
+        <div class="glass-panel max-w-lg w-full p-7 sm:p-8 border border-fuchsia-400/30 shadow-[0_25px_70px_rgba(0,0,0,0.85)] relative">
+            <button onclick="RoutineManager.closeModal()" class="hover-trigger absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-purple-200">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <div id="course-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-8 text-center text-purple-200/40 text-sm reveal-up border-t border-white/5 bg-[#090014]/50 backdrop-blur-xl relative z-10">
+        <p>BTM Batch 25 &copy; 2026. Islamic University of Technology.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // =========================================================================
+        // 1. BUILT-IN SEAMLESS WEB AUDIO ENGINE (Clicky Anywhere + Cursor Motion + Hover)
+        // =========================================================================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+        let lastMoveSoundTime = 0;
+
+        function ensureAudio() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(frequency, type, duration, volume) {
+            ensureAudio();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+            
+            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        // Subtle glass tick on hover
+        function playHoverSound() {
+            playTone(840, 'sine', 0.045, 0.016);
+        }
+
+        // Crisp Apple-grade tactile clicky sound on clicking anywhere
+        function playClickSound(e) {
+            ensureAudio();
+            const now = audioCtx.currentTime;
+
+            let dest = audioCtx.destination;
+            if (audioCtx.createStereoPanner && e && typeof e.clientX === 'number') {
+                const panner = audioCtx.createStereoPanner();
+                const panVal = Math.max(-0.8, Math.min(0.8, (e.clientX / window.innerWidth) * 2 - 1));
+                panner.pan.setValueAtTime(panVal, now);
+                panner.connect(audioCtx.destination);
+                dest = panner;
+            }
+
+            // Primary tactile click transient
+            const osc1 = audioCtx.createOscillator();
+            const gain1 = audioCtx.createGain();
+            osc1.type = 'triangle';
+            osc1.frequency.setValueAtTime(1480, now);
+            osc1.frequency.exponentialRampToValueAtTime(260, now + 0.038);
+            gain1.gain.setValueAtTime(0.075, now);
+            gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.042);
+            osc1.connect(gain1);
+            gain1.connect(dest);
+            osc1.start(now);
+            osc1.stop(now + 0.045);
+
+            // Warm low-end body pop
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(360, now + 0.008);
+            osc2.frequency.exponentialRampToValueAtTime(110, now + 0.06);
+            gain2.gain.setValueAtTime(0.05, now + 0.008);
+            gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+            osc2.connect(gain2);
+            gain2.connect(dest);
+            osc2.start(now + 0.008);
+            osc2.stop(now + 0.068);
+        }
+
+        // Velocity-sensitive subtle sound when moving the cursor
+        function playCursorMoveSound(speed, xRatio) {
+            const nowMs = performance.now();
+            if (nowMs - lastMoveSoundTime < 65) return;
+            lastMoveSoundTime = nowMs;
+
+            if (audioCtx.state === 'suspended') return;
+            const now = audioCtx.currentTime;
+
+            const freq = 620 + Math.round(xRatio * 320) + Math.min(speed * 6, 360);
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now);
+            osc.frequency.exponentialRampToValueAtTime(freq * 1.1, now + 0.026);
+
+            const vol = Math.min(0.015, Math.max(0.004, (speed / 130) * 0.014));
+            gain.gain.setValueAtTime(vol, now);
+            gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.03);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.032);
+        }
+
+        // Attach global click sound & ripple wave
+        window.addEventListener('pointerdown', (e) => {
+            playClickSound(e);
+            document.body.classList.add('cursor-click');
+            setTimeout(() => document.body.classList.remove('cursor-click'), 150);
+
+            const ripple = document.createElement('div');
+            ripple.className = 'click-ripple';
+            ripple.style.left = `${e.clientX}px`;
+            ripple.style.top = `${e.clientY}px`;
+            document.body.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        // =========================================================================
+        // 2. BOOT SEQUENCE PRELOADER
+        // =========================================================================
+        let preloaderDone = false;
+        function skipPreloader() {
+            if (preloaderDone) return;
+            preloaderDone = true;
+            const preloader = document.getElementById('preloader');
+            const counter = document.getElementById('loader-counter');
+            if (counter) counter.innerText = '100%';
+            if (preloader) {
+                preloader.style.opacity = '0';
+                preloader.style.transform = 'translateY(-20px) scale(1.05)';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                    initScrollReveal();
+                }, 700);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            let count = 0;
+            const counter = document.getElementById('loader-counter');
+            
+            const interval = setInterval(() => {
+                if (preloaderDone) {
+                    clearInterval(interval);
+                    return;
+                }
+                count += Math.floor(Math.random() * 18) + 8;
+                if (count > 100) count = 100;
+                if (counter) counter.innerText = count + '%';
+                
+                if (count === 100) {
+                    clearInterval(interval);
+                    setTimeout(() => skipPreloader(), 300);
+                }
+            }, 55);
+        });
+
+        // =========================================================================
+        // 3. CUSTOM MAGNETIC CURSOR, PARALLAX & CURSOR MOTION SOUND
+        // =========================================================================
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorOutline = document.getElementById('cursor-outline');
+        let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+        let prevMouseX = mouseX, prevMouseY = mouseY;
+        let outlineX = mouseX, outlineY = mouseY;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            cursorDot.style.left = `${mouseX}px`;
+            cursorDot.style.top = `${mouseY}px`;
+
+            const dx = mouseX - prevMouseX;
+            const dy = mouseY - prevMouseY;
+            const speed = Math.hypot(dx, dy);
+            prevMouseX = mouseX;
+            prevMouseY = mouseY;
+
+            if (speed > 6) {
+                playCursorMoveSound(speed, mouseX / window.innerWidth);
+                ParticleSystem.spawnTrail(mouseX, mouseY, dx, dy);
+            }
+            
+            const xOffset = (mouseX / window.innerWidth - 0.5) * 60;
+            const yOffset = (mouseY / window.innerHeight - 0.5) * 60;
+            const orb1 = document.getElementById('orb-1');
+            const orb2 = document.getElementById('orb-2');
+            const orb3 = document.getElementById('orb-3');
+            if (orb1) orb1.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+            if (orb2) orb2.style.transform = `translate(${-xOffset}px, ${-yOffset}px)`;
+            if (orb3) orb3.style.transform = `translate(${yOffset * 0.6}px, ${-xOffset * 0.6}px)`;
+        });
+
+        function animateCursor() {
+            let distX = mouseX - outlineX;
+            let distY = mouseY - outlineY;
+            outlineX += distX * 0.22; 
+            outlineY += distY * 0.22;
+            
+            cursorOutline.style.left = `${outlineX}px`;
+            cursorOutline.style.top = `${outlineY}px`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // =========================================================================
+        // 4. INTERACTIVE PARTICLE & CURSOR TRAIL CANVAS
+        // =========================================================================
+        const ParticleSystem = {
+            canvas: null,
+            ctx: null,
+            particles: [],
+            trail: [],
+
+            init() {
+                this.canvas = document.getElementById('particle-canvas');
+                if (!this.canvas) return;
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+
+                for (let i = 0; i < 40; i++) {
+                    this.particles.push({
+                        x: Math.random() * window.innerWidth,
+                        y: Math.random() * window.innerHeight,
+                        r: Math.random() * 1.7 + 0.5,
+                        vx: (Math.random() - 0.5) * 0.22,
+                        vy: (Math.random() - 0.5) * 0.22,
+                        alpha: Math.random() * 0.5 + 0.15
+                    });
+                }
+                this.loop();
+            },
+
+            resize() {
+                if (!this.canvas) return;
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            },
+
+            spawnTrail(x, y, dx, dy) {
+                if (this.trail.length > 32) return;
+                this.trail.push({
+                    x,
+                    y,
+                    vx: -dx * 0.035 + (Math.random() - 0.5) * 0.5,
+                    vy: -dy * 0.035 + (Math.random() - 0.5) * 0.5,
+                    r: Math.random() * 2.4 + 1.0,
+                    life: 1.0,
+                    hue: Math.random() > 0.5 ? 285 : 265
+                });
+            },
+
+            loop() {
+                if (!this.ctx) return;
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                for (const p of this.particles) {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0) p.x = this.canvas.width;
+                    if (p.x > this.canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = this.canvas.height;
+                    if (p.y > this.canvas.height) p.y = 0;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `rgba(216, 180, 254, ${p.alpha})`;
+                    this.ctx.fill();
+                }
+
+                for (let i = this.trail.length - 1; i >= 0; i--) {
+                    const t = this.trail[i];
+                    t.x += t.vx;
+                    t.y += t.vy;
+                    t.life -= 0.038;
+                    if (t.life <= 0) {
+                        this.trail.splice(i, 1);
+                        continue;
+                    }
+                    this.ctx.beginPath();
+                    this.ctx.arc(t.x, t.y, t.r * t.life, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `hsla(${t.hue}, 90%, 75%, ${t.life * 0.5})`;
+                    this.ctx.fill();
+                }
+
+                requestAnimationFrame(() => this.loop());
+            }
+        };
+        ParticleSystem.init();
+
+        // =========================================================================
+        // 5. APPLE-GRADE 3D STAGGERED CHARACTER ANIMATION FOR HERO TITLES
+        //    ("The Business Administrative" -> "The Engineer Administratives" -> "The Future CEOs & MDs")
+        // =========================================================================
+        const roleText = document.getElementById('role-text');
+        const rolePrefix = document.getElementById('role-prefix');
+        const roles = [
+            "The Business Administrative",
+            "The Engineer Administratives",
+            "The Future CEOs & MDs"
+        ];
+        const prefixes = [
+            "We are",
+            "We Are",
+            "We are"
+        ];
+        let roleIndex = 0;
+
+        function renderAnimatedRoleChars(phrase) {
+            if (!roleText) return;
+            roleText.innerHTML = '';
+            const chars = Array.from(phrase);
+            chars.forEach((ch, idx) => {
+                const span = document.createElement('span');
+                if (ch === ' ') {
+                    span.className = 'role-char space-char';
+                    span.innerHTML = '&nbsp;';
+                } else {
+                    span.className = 'role-char';
+                    span.textContent = ch;
+                }
+                span.style.animationDelay = `${idx * 0.024}s`;
+                roleText.appendChild(span);
+            });
+        }
+
+        // Initial render of animated characters
+        renderAnimatedRoleChars(roles[0]);
+
+        setInterval(() => {
+            if (!roleText) return;
+            const currentSpans = roleText.querySelectorAll('.role-char');
+            currentSpans.forEach((sp, i) => {
+                sp.style.animationDelay = `${i * 0.01}s`;
+                sp.classList.add('role-char-exit');
+            });
+
+            setTimeout(() => {
+                roleIndex = (roleIndex + 1) % roles.length;
+                if (rolePrefix) rolePrefix.innerText = prefixes[roleIndex];
+                renderAnimatedRoleChars(roles[roleIndex]);
+            }, 380);
+        }, 3600);
+
+        // =========================================================================
+        // 6. HOVER, MAGNETIC & CARD SPOTLIGHT / 3D TILT INTERACTIONS
+        // =========================================================================
+        function attachHoverEvents() {
+            document.querySelectorAll('.hover-trigger, a, button').forEach(el => {
+                if (el.dataset.hoverBound) return;
+                el.dataset.hoverBound = 'true';
+                el.addEventListener('mouseenter', () => {
+                    document.body.classList.add('cursor-hover');
+                    playHoverSound();
+                });
+                el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+            });
+
+            document.querySelectorAll('.glass-panel').forEach(panel => {
+                if (panel.dataset.spotlightBound) return;
+                panel.dataset.spotlightBound = 'true';
+                panel.addEventListener('mousemove', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.style.setProperty('--mouse-x', `${x}px`);
+                    this.style.setProperty('--mouse-y', `${y}px`);
+
+                    if (this.hasAttribute('data-tilt')) {
+                        const rotateX = ((y / rect.height) - 0.5) * -5;
+                        const rotateY = ((x / rect.width) - 0.5) * 5;
+                        this.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+                    }
+                });
+                panel.addEventListener('mouseleave', function() {
+                    if (this.hasAttribute('data-tilt')) {
+                        this.style.transform = '';
+                    }
+                });
+            });
+        }
+        attachHoverEvents();
+
+        // Magnetic Buttons
+        document.querySelectorAll('.magnetic').forEach(btn => {
+            btn.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                this.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+            });
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = `translate(0px, 0px)`;
+            });
+        });
+
+        // =========================================================================
+        // 7. SCROLL REVEAL ENGINE
+        // =========================================================================
+        function initScrollReveal() {
+            const reveals = document.querySelectorAll('.reveal-up');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+            
+            reveals.forEach(el => observer.observe(el));
+        }
+
+        // =========================================================================
+        // 8. UI & TAB MANAGEMENT
+        // =========================================================================
+        const UIManager = {
+            switchTab(tabId) {
+                playTone(540, 'sine', 0.11, 0.022);
+                document.querySelectorAll('.tab-content').forEach(el => {
+                    el.classList.add('hidden');
+                    el.classList.remove('block');
+                });
+                
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('bg-white/10', 'text-white', 'shadow-[0_0_10px_rgba(255,255,255,0.05)]');
+                    btn.classList.add('text-purple-200/60');
+                });
+
+                const target = document.getElementById(`tab-${tabId}`);
+                if (target) {
+                    target.classList.remove('hidden');
+                    target.classList.add('block');
+                }
+                
+                const activeNav = document.getElementById(`nav-${tabId}`);
+                if (activeNav) {
+                    activeNav.classList.add('bg-white/10', 'text-white', 'shadow-[0_0_10px_rgba(255,255,255,0.05)]');
+                    activeNav.classList.remove('text-purple-200/60');
+                }
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                setTimeout(() => {
+                    initScrollReveal();
+                    lucide.createIcons();
+                    attachHoverEvents();
+                }, 50);
+            },
+
+            toggleMobileMenu() {
+                const menu = document.getElementById('mobile-menu');
+                if (menu) {
+                    menu.classList.toggle('hidden');
+                }
+            }
+        };
+
+        // =========================================================================
+        // 9. ROUTINE DATA, COURSE CATALOG & RENDERING ENGINE
+        // =========================================================================
+        const CourseCatalog = {
+            'BTM 4101': {
+                title: 'Introduction to Business & Management',
+                credits: '3.0 Credits',
+                dept: 'Department of TVE / BTM',
+                overview: 'Foundations of modern enterprise management, organizational structures, leadership frameworks, and strategic decision-making for future CEOs & MDs.',
+                topics: ['Principles of Management & Executive Leadership', 'Corporate Governance & Business Ethics', 'Organizational Structure & Culture', 'Strategic Planning & Competitive Advantage']
+            },
+            'BTM 4103': {
+                title: 'Financial Accounting I',
+                credits: '3.0 Credits',
+                dept: 'Department of TVE / BTM',
+                overview: 'Core accounting principles, double-entry bookkeeping, financial statement preparation, and balance sheet analysis.',
+                topics: ['Conceptual Framework of Accounting', 'Recording Business Transactions & Ledgers', 'Adjusting Entries & Trial Balance', 'Income Statement & Balance Sheet Analysis']
+            },
+            'BTM 4105': {
+                title: 'Microeconomics for Business',
+                credits: '3.0 Credits',
+                dept: 'Department of TVE / BTM',
+                overview: 'Market equilibrium, consumer utility optimization, production cost functions, and pricing strategies across market structures.',
+                topics: ['Supply, Demand & Market Equilibrium', 'Elasticity & Consumer Choice Theory', 'Short-Run & Long-Run Production Costs', 'Perfect Competition, Monopoly & Oligopoly']
+            },
+            'BTM 4107': {
+                title: 'Business Statistics & Data Analysis',
+                credits: '3.0 Credits',
+                dept: 'Department of TVE / BTM',
+                overview: 'Descriptive statistics, probability distributions, hypothesis testing, and regression modeling for business intelligence.',
+                topics: ['Measures of Central Tendency & Dispersion', 'Probability Theory & Bayes Theorem', 'Discrete & Continuous Distributions', 'Correlation & Linear Regression Modeling']
+            },
+            'CSE 4180': {
+                title: 'Information Technology & Computing Lab',
+                credits: '1.5 Credits',
+                dept: 'Department of CSE',
+                overview: 'Hands-on computational thinking, office automation, spreadsheet financial modeling, and structured programming fundamentals.',
+                topics: ['Enterprise Spreadsheet Modeling & Formulas', 'Database Fundamentals & Structured Queries', 'Web Technologies & Digital Workflows', 'Problem Solving & Algorithmic Thinking']
+            },
+            'MATH 4161': {
+                title: 'Mathematics for Business & Economics',
+                credits: '3.0 Credits',
+                dept: 'Department of MPE / Math',
+                overview: 'Matrix algebra, differential and integral calculus, and multivariable optimization applied to economic and managerial systems.',
+                topics: ['Linear Algebra, Matrices & Determinants', 'Differential Calculus & Marginal Analysis', 'Unconstrained & Constrained Optimization (Lagrange)', 'Integral Calculus & Consumer/Producer Surplus']
+            },
+            'HUM 4161': {
+                title: 'Business Communication & Technical English',
+                credits: '3.0 Credits',
+                dept: 'Department of TVE / Humanities',
+                overview: 'Executive correspondence, persuasive presentation design, academic writing, and cross-cultural negotiation skills.',
+                topics: ['Executive Business Reports & Proposals', 'Corporate Email & Memo Etiquette', 'Public Speaking & Pitch Deck Delivery', 'Analytical Reading & Case Study Synthesis']
+            },
+            'Makeup': {
+                title: 'Reserved Makeup & Tutorial Slot',
+                credits: 'Flexible Slot',
+                dept: 'IUT BTM 25 Coordination',
+                overview: 'Dedicated buffer window reserved for extra lectures, class tests (quizzes), or rescheduled sessions.',
+                topics: ['Quiz / Class Test Assessment Window', 'Extra Review Session Before Mid/Final', 'Group Presentation & Case Discussions']
+            }
+        };
+
+        const RoutineData = {
+            group1: [
+                { day: 'Monday', classes: [
+                    { time: '08:00 - 09:15', name: 'HUM 4161-A', type: 'Tutorial', room: '203', inst: 'RS' },
+                    { time: '09:15 - 10:30', name: 'BTM 4107', type: 'Lecture', room: '203', inst: 'MSU' },
+                    { time: '10:30 - 11:45', name: 'HUM 4161', type: 'Lecture', room: '203', inst: 'RS' },
+                    { time: '14:30 - 15:45', name: 'BTM 4105', type: 'Lecture', room: '603', inst: 'AAM' }
+                ]},
+                { day: 'Tuesday', classes: [
+                    { time: '10:30 - 13:00', name: 'CSE 4180', type: 'Lab', room: 'CC03 Lab', inst: 'FM / RS' },
+                    { time: '14:30 - 15:45', name: 'BTM 4107', type: 'Lecture', room: '603', inst: 'MSU' }
+                ]},
+                { day: 'Wednesday', classes: [
+                    { time: '08:00 - 09:15', name: 'BTM 4107-A', type: 'Tutorial', room: 'BTM Lab', inst: 'JL / MSU' },
+                    { time: '10:30 - 11:45', name: 'BTM 4101-A', type: 'Tutorial', room: 'CC03 Lab', inst: 'AKA' },
+                    { time: '11:45 - 13:00', name: 'BTM 4105-B', type: 'Tutorial', room: 'CC03 Lab', inst: 'AAM / JL' }
+                ]},
+                { day: 'Thursday', classes: [
+                    { time: '08:00 - 09:15', name: 'Makeup', type: 'Makeup', room: 'Annex', inst: 'Makeup' },
+                    { time: '09:15 - 10:30', name: 'BTM 4105', type: 'Lecture', room: 'Annex', inst: 'AAM' },
+                    { time: '10:30 - 11:45', name: 'BTM 4103', type: 'Lecture', room: 'Annex', inst: 'NA' },
+                    { time: '11:45 - 13:00', name: 'MATH 4161', type: 'Lecture', room: 'Annex', inst: 'Dr. M' },
+                    { time: '14:30 - 15:45', name: 'BTM 4101', type: 'Lecture', room: '203', inst: 'AKA' },
+                    { time: '15:45 - 17:00', name: 'BTM 4103-A', type: 'Tutorial', room: '203', inst: 'NA / JL' }
+                ]},
+                { day: 'Friday', classes: [
+                    { time: '08:00 - 09:15', name: 'Makeup', type: 'Makeup', room: '603', inst: 'Makeup' },
+                    { time: '09:15 - 10:30', name: 'BTM 4101', type: 'Lecture', room: '603', inst: 'AKA' },
+                    { time: '11:45 - 13:00', name: 'MATH 4161', type: 'Lecture', room: '603', inst: 'Dr. M' },
+                    { time: '14:30 - 15:45', name: 'HUM 4161', type: 'Lecture', room: '603', inst: 'RS' },
+                    { time: '15:45 - 17:00', name: 'BTM 4103', type: 'Lecture', room: '603', inst: 'NA' }
+                ]}
+            ],
+            group2: [
+                { day: 'Monday', classes: [
+                    { time: '09:15 - 10:30', name: 'BTM 4107', type: 'Lecture', room: '203', inst: 'MSU' },
+                    { time: '10:30 - 11:45', name: 'HUM 4161', type: 'Lecture', room: '203', inst: 'RS' },
+                    { time: '14:30 - 15:45', name: 'BTM 4105', type: 'Lecture', room: '603', inst: 'AAM' },
+                    { time: '15:45 - 17:00', name: 'BTM 4101-B', type: 'Tutorial', room: '603', inst: 'AKA' }
+                ]},
+                { day: 'Tuesday', classes: [
+                    { time: '10:30 - 11:45', name: 'BTM 4107-B', type: 'Tutorial', room: '203', inst: 'MSU / JL' },
+                    { time: '14:30 - 15:45', name: 'BTM 4107', type: 'Lecture', room: '603', inst: 'MSU' }
+                ]},
+                { day: 'Wednesday', classes: [
+                    { time: '09:15 - 10:30', name: 'BTM 4103-B', type: 'Tutorial', room: 'BTM Lab', inst: 'JL / NA' },
+                    { time: '10:30 - 13:00', name: 'CSE 4180', type: 'Lab', room: 'BTM Lab', inst: 'FM / KK' }
+                ]},
+                { day: 'Thursday', classes: [
+                    { time: '08:00 - 09:15', name: 'Makeup', type: 'Makeup', room: 'Annex', inst: 'Makeup' },
+                    { time: '09:15 - 10:30', name: 'BTM 4105', type: 'Lecture', room: 'Annex', inst: 'AAM' },
+                    { time: '10:30 - 11:45', name: 'BTM 4103', type: 'Lecture', room: 'Annex', inst: 'NA' },
+                    { time: '11:45 - 13:00', name: 'MATH 4161', type: 'Lecture', room: 'Annex', inst: 'Dr. M' },
+                    { time: '14:30 - 15:45', name: 'BTM 4101', type: 'Lecture', room: '203', inst: 'AKA' },
+                    { time: '15:45 - 17:00', name: 'HUM 4161-B', type: 'Tutorial', room: 'BTM Lab', inst: 'RS' }
+                ]},
+                { day: 'Friday', classes: [
+                    { time: '08:00 - 09:15', name: 'Makeup', type: 'Makeup', room: '603', inst: 'Makeup' },
+                    { time: '09:15 - 10:30', name: 'BTM 4101', type: 'Lecture', room: '603', inst: 'AKA' },
+                    { time: '10:30 - 11:45', name: 'BTM 4105-B', type: 'Tutorial', room: '603', inst: 'JL / AAM' },
+                    { time: '11:45 - 13:00', name: 'MATH 4161', type: 'Lecture', room: '603', inst: 'Dr. M' },
+                    { time: '14:30 - 15:45', name: 'HUM 4161', type: 'Lecture', room: '603', inst: 'RS' },
+                    { time: '15:45 - 17:00', name: 'BTM 4103', type: 'Lecture', room: '603', inst: 'NA' }
+                ]}
+            ]
+        };
+
+        const RoutineManager = {
+            currentGroup: 1,
+            dayFilter: 'ALL',
+            typeFilter: 'ALL',
+            searchQuery: '',
+
+            init() { this.render(); },
+
+            setGroup(num) {
+                if (this.currentGroup === num) return;
+                this.currentGroup = num;
+                playTone(620, 'sine', 0.09, 0.02);
+                
+                document.getElementById('btn-group1').classList.toggle('active', num === 1);
+                document.getElementById('btn-group2').classList.toggle('active', num === 2);
+                
+                this.render();
+            },
+
+            setDayFilter(day) {
+                this.dayFilter = day;
+                document.querySelectorAll('.day-pill').forEach(btn => {
+                    if (btn.dataset.day === day) {
+                        btn.className = 'day-pill hover-trigger px-4 py-2 rounded-full text-xs font-bold bg-white text-black transition-all shrink-0';
+                    } else {
+                        btn.className = 'day-pill hover-trigger px-4 py-2 rounded-full text-xs font-medium bg-white/5 text-purple-200 hover:bg-white/10 transition-all shrink-0';
+                    }
+                });
+                this.render();
+            },
+
+            setTypeFilter(type) {
+                this.typeFilter = type;
+                this.render();
+            },
+
+            setSearch(query) {
+                this.searchQuery = (query || '').trim().toLowerCase();
+                this.render();
+            },
+
+            getBaseCourseKey(name) {
+                if (name.startsWith('HUM 4161')) return 'HUM 4161';
+                if (name.startsWith('BTM 4101')) return 'BTM 4101';
+                if (name.startsWith('BTM 4103')) return 'BTM 4103';
+                if (name.startsWith('BTM 4105')) return 'BTM 4105';
+                if (name.startsWith('BTM 4107')) return 'BTM 4107';
+                if (name.startsWith('CSE 4180')) return 'CSE 4180';
+                if (name.startsWith('MATH 4161')) return 'MATH 4161';
+                return 'Makeup';
+            },
+
+            openCourseModal(name, type, time, room, inst, day) {
+                const key = this.getBaseCourseKey(name);
+                const info = CourseCatalog[key] || CourseCatalog['Makeup'];
+                const modal = document.getElementById('course-modal');
+                const body = document.getElementById('course-modal-body');
+                if (!modal || !body) return;
+
+                body.innerHTML = `
+                    <div class="space-y-5">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="px-2.5 py-1 rounded-md text-[10px] font-mono uppercase font-bold bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-400/30">${type}</span>
+                                <span class="text-xs font-mono text-purple-300">${day} • ${time}</span>
+                            </div>
+                            <h3 class="text-2xl font-heading font-extrabold text-white">${name} — ${info.title}</h3>
+                            <p class="text-xs text-purple-300/70 font-mono mt-1">${info.credits} • ${info.dept}</p>
+                        </div>
+
+                        <p class="text-sm text-purple-100/80 leading-relaxed">${info.overview}</p>
+
+                        <div class="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 text-xs">
+                            <div>
+                                <div class="text-purple-300/60">Room / Venue</div>
+                                <div class="font-bold text-white mt-0.5">${room}</div>
+                            </div>
+                            <div>
+                                <div class="text-purple-300/60">Instructor(s)</div>
+                                <div class="font-bold text-white mt-0.5">${inst}</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs font-mono uppercase tracking-wider text-purple-300/70 mb-2">Key Syllabus Modules</div>
+                            <ul class="space-y-1.5 text-xs text-purple-100/85">
+                                ${info.topics.map(t => `<li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-fuchsia-400"></span>${t}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                lucide.createIcons();
+            },
+
+            closeModal() {
+                const modal = document.getElementById('course-modal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            },
+
+            render() {
+                const container = document.getElementById('routine-container');
+                if (!container) return;
+                container.innerHTML = ''; 
+                const data = this.currentGroup === 1 ? RoutineData.group1 : RoutineData.group2;
+                
+                let delayCounter = 0;
+                let totalShown = 0;
+
+                data.forEach((dayData) => {
+                    if (this.dayFilter !== 'ALL' && dayData.day !== this.dayFilter) return;
+
+                    const filteredClasses = dayData.classes.filter(cls => {
+                        if (this.typeFilter !== 'ALL' && cls.type !== this.typeFilter) return false;
+                        if (this.searchQuery) {
+                            const hay = `${cls.name} ${cls.type} ${cls.room} ${cls.inst} ${dayData.day}`.toLowerCase();
+                            if (!hay.includes(this.searchQuery)) return false;
+                        }
+                        return true;
+                    });
+
+                    if (filteredClasses.length === 0) return;
+
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'reveal-up active'; 
+                    
+                    let html = `<h3 class="text-2xl font-heading font-bold text-white mb-6 flex items-center gap-3">
+                                   <span class="w-2 h-2 rounded-full bg-fuchsia-500 shadow-[0_0_8px_rgba(217,70,239,0.8)]"></span> ${dayData.day}
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">`;
+                    
+                    filteredClasses.forEach(cls => {
+                        totalShown++;
+                        const theme = cls.type === 'Lecture' ? 'bg-purple-500/10 text-purple-300 border-purple-500/30' :
+                                      cls.type === 'Tutorial' ? 'bg-fuchsia-500/10 text-fuchsia-300 border-fuchsia-500/30' :
+                                      cls.type === 'Lab' ? 'bg-pink-500/10 text-pink-300 border-pink-500/30' :
+                                      'bg-indigo-500/10 text-indigo-300 border-indigo-500/30';
+
+                        html += `
+                            <div onclick="RoutineManager.openCourseModal('${cls.name}', '${cls.type}', '${cls.time}', '${cls.room}', '${cls.inst}', '${dayData.day}')" class="routine-card glass-panel hover-trigger p-6 cursor-pointer" data-tilt style="animation-delay: ${delayCounter * 0.08}s">
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider border ${theme}">
+                                        ${cls.type}
+                                    </span>
+                                    <span class="text-xs text-purple-200/60 flex items-center gap-1.5"><i data-lucide="clock" class="w-3 h-3"></i> ${cls.time}</span>
+                                </div>
+                                <h4 class="text-xl font-bold text-white mb-4">${cls.name}</h4>
+                                <div class="flex items-center justify-between text-xs text-purple-200/50">
+                                    <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> ${cls.room}</span>
+                                    <span class="text-white/70 font-medium">${cls.inst}</span>
+                                </div>
+                            </div>
+                        `;
+                        delayCounter++;
+                    });
+                    
+                    html += `</div>`;
+                    dayDiv.innerHTML = html;
+                    container.appendChild(dayDiv);
+                });
+
+                if (totalShown === 0) {
+                    container.innerHTML = `
+                        <div class="glass-panel p-10 text-center">
+                            <p class="text-base font-bold text-white mb-2">No matching classes found</p>
+                            <button onclick="RoutineManager.setDayFilter('ALL'); RoutineManager.setTypeFilter('ALL'); document.getElementById('routine-search').value=''; RoutineManager.setSearch('');" class="px-5 py-2 rounded-full bg-white text-black text-xs font-bold">Reset Filters</button>
+                        </div>
+                    `;
+                }
+
+                lucide.createIcons();
+                attachHoverEvents();
+            }
+        };
+
+        // =========================================================================
+        // 10. INTERACTIVE RESOURCE EXPLORER (Course Outlines & Question Bank)
+        // =========================================================================
+        const ResourceExplorer = {
+            activeSection: 'outlines',
+
+            openSection(sec) {
+                this.activeSection = sec;
+                const panel = document.getElementById('resource-explorer-panel');
+                if (!panel) return;
+                panel.classList.remove('hidden');
+                this.render();
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            },
+
+            render() {
+                const panel = document.getElementById('resource-explorer-panel');
+                if (!panel) return;
+
+                if (this.activeSection === 'outlines') {
+                    const keys = ['BTM 4101', 'BTM 4103', 'BTM 4105', 'BTM 4107', 'CSE 4180', 'MATH 4161', 'HUM 4161'];
+                    panel.innerHTML = `
+                        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
+                            <div>
+                                <span class="text-xs font-mono uppercase tracking-wider text-fuchsia-300">Syllabus Breakdown</span>
+                                <h3 class="text-2xl font-heading font-bold text-white">1st Semester Course Outlines</h3>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="ResourceExplorer.openSection('outlines')" class="px-4 py-2 rounded-full text-xs font-bold bg-fuchsia-500 text-white">Course Outlines</button>
+                                <button onclick="ResourceExplorer.openSection('qbank')" class="px-4 py-2 rounded-full text-xs font-bold bg-white/5 text-purple-200 hover:bg-white/10">Question Bank</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            ${keys.map(code => {
+                                const c = CourseCatalog[code];
+                                return `
+                                    <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-fuchsia-400/40 transition-all">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-purple-500/20 text-purple-200 border border-purple-400/30">${code}</span>
+                                            <span class="text-xs font-mono text-purple-300/60">${c.credits}</span>
+                                        </div>
+                                        <h4 class="text-lg font-bold text-white mb-1">${c.title}</h4>
+                                        <p class="text-xs text-purple-200/65 mb-3">${c.overview}</p>
+                                        <div class="flex flex-wrap gap-1.5">
+                                            ${c.topics.map(t => `<span class="px-2.5 py-1 rounded-full bg-white/5 text-[11px] text-purple-200/80">${t}</span>`).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else {
+                    const questions = [
+                        { course: 'BTM 4101', exam: 'Mid-Term Archive', q: 'Compare Mintzberg’s 10 Managerial Roles across tech startups and multinational enterprises with practical examples.' },
+                        { course: 'BTM 4103', exam: 'Mid-Term Archive', q: 'Prepare an adjusted trial balance and multi-step income statement from raw ledger balances under IFRS accrual standards.' },
+                        { course: 'BTM 4105', exam: 'Final Exam Prep', q: 'Derive the profit-maximizing output for a monopolistically competitive firm in the short run vs. long-run equilibrium.' },
+                        { course: 'BTM 4107', exam: 'Quiz & Mid Prep', q: 'Compute Karl Pearson’s correlation coefficient and ordinary least squares (OLS) regression line for quarterly revenue datasets.' },
+                        { course: 'MATH 4161', exam: 'Final Exam Prep', q: 'Apply Lagrange multipliers to optimize a Cobb-Douglas production function subject to a fixed capital-labor budget constraint.' },
+                        { course: 'HUM 4161', exam: 'Assessment Prompt', q: 'Draft an executive boardroom memorandum proposing a digital transformation roadmap with risk mitigation matrices.' }
+                    ];
+                    panel.innerHTML = `
+                        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
+                            <div>
+                                <span class="text-xs font-mono uppercase tracking-wider text-pink-300">Past Papers &amp; Practice</span>
+                                <h3 class="text-2xl font-heading font-bold text-white">BTM 25 Question Bank</h3>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="ResourceExplorer.openSection('outlines')" class="px-4 py-2 rounded-full text-xs font-bold bg-white/5 text-purple-200 hover:bg-white/10">Course Outlines</button>
+                                <button onclick="ResourceExplorer.openSection('qbank')" class="px-4 py-2 rounded-full text-xs font-bold bg-pink-500 text-white">Question Bank</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            ${questions.map(item => `
+                                <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-pink-400/40 transition-all">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-pink-500/20 text-pink-200 border border-pink-400/30">${item.course}</span>
+                                        <span class="text-xs font-mono text-purple-300/60">${item.exam}</span>
+                                    </div>
+                                    <p class="text-sm text-white/90 leading-relaxed">${item.q}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                attachHoverEvents();
+            }
+        };
+
+        // Initialize
+        lucide.createIcons();
+        RoutineManager.init();
+    </script>
+</body>
+</html>
